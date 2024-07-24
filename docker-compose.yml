@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  eureka-server:
+    image: eureka-server:latest
+    build:
+      context: ./eureka-server
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+
+  cliente-persona-service:
+    image: cliente-persona-service:latest
+    build:
+      context: ./cliente-persona-service
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=default
+      - SPRING_DATASOURCE_URL=jdbc:h2:mem:clientedb;DB_CLOSE_DELAY=-1
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+    depends_on:
+      - eureka-server
+
+  cuenta-movimientos-service:
+    image: cuenta-movimientos-service:latest
+    build:
+      context: ./cuenta-movimientos-service
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=default
+      - SPRING_DATASOURCE_URL=jdbc:h2:mem:cuentadb;DB_CLOSE_DELAY=-1
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+    depends_on:
+      - eureka-server
